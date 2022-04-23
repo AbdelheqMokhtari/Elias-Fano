@@ -73,7 +73,7 @@ for k in range(n):
 ```
 9- Create all possible combinatation of 0's and 1's ('000','001','010','011','100','101'........) the length of the binary number equal to the size of number of upper bits.
 
-```pyhton
+```python
 a = 0
 list_of_possiblites = [] 
 for i in range(2**(binary_size-l)):
@@ -86,7 +86,7 @@ for item in list_of_possiblites:
 
 10- Compare the upper bits of everynumber and count how many time the same combination's repeat we add 1's with number of repetation and separate with 0 
 
-```pyhton
+```python
 U = []  
 for item in combinations:
     count = upper_bits.count(item) 
@@ -97,7 +97,7 @@ for item in combinations:
 
 11- Repeat the same step's of priniting L with U 
 
-```pyhton
+```python
 U =''.join(U) 
 
  
