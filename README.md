@@ -84,7 +84,7 @@ for item in list_of_possiblites:
     combinations.append(item.zfill(binary_size-l)) 
 ```
 
-10- 
+10- Compare the upper bits of everynumber and count how many time the same combination's repeat we add 1's with number of repetation and separate with 0 
 
 ```pyhton
 U = []  
@@ -93,6 +93,40 @@ for item in combinations:
     for j in range(count):
         U.append('1')  
     U.append('0') 
+```
+
+11- Repeat the same step's of priniting L with U 
+
+```pyhton
+U =''.join(U) 
+
+ 
+print('U')
+if(len(U) % 8 != 0):
+    rest_bit = 8 - (len(U)%8)
+    for i in range(rest_bit):
+        U = U + '0'
+
+
+for i in range(0, len(U), 8):  
+        print(U[i:i+8])
+```
+
+12 - convert the strings U and L to byte array's 
+
+```python
+L = int(L, 2).to_bytes(len(L) // 8, byteorder='big')
+U = int(U, 2).to_bytes(len(U) // 8, byteorder='big')
+```
+
+13 - using ByteArray print the hash code generated from U and L together 
+
+```python
+m = hashlib.sha256()
+m.update(L)
+m.update(U)
+digest = m.hexdigest()
+print(digest) 
 ```
 ## output
 
