@@ -71,7 +71,29 @@ upper_bits = []
 for k in range(n):
     upper_bits.append(binary_numbers[k][:binary_size-l]) 
 ```
+9- Create all possible combinatation of 0's and 1's ('000','001','010','011','100','101'........) the length of the binary number equal to the size of number of upper bits.
 
+```pyhton
+a = 0
+list_of_possiblites = [] 
+for i in range(2**(binary_size-l)):
+    list_of_possiblites.append(bin(a)[2:]) 
+    a = a + 1 
+combinations = []  
+for item in list_of_possiblites:
+    combinations.append(item.zfill(binary_size-l)) 
+```
+
+10- 
+
+```pyhton
+U = []  
+for item in combinations:
+    count = upper_bits.count(item) 
+    for j in range(count):
+        U.append('1')  
+    U.append('0') 
+```
 ## output
 
 1- Execute the script with the first example :
@@ -141,3 +163,13 @@ U
 11000110
 d3bba2253709f6dba0bcdd5be5dfd4e18597fe3b497c15592365f0578051a2c7
 ```
+
+## Social Media
+
+[LinkedIn](https://www.linkedin.com/in/abdelheq-mokhtari/)
+
+[stackoverflow](https://stackoverflow.com/users/13501362/abdelheq-mokhtari)
+
+[Twitter](https://twitter.com/Abdelheq_mokh)
+
+[FaceBook](https://www.facebook.com/hakoo.mokhtari/) 
