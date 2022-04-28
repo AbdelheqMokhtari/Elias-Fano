@@ -2,100 +2,131 @@ import hashlib
 import math
 import sys
 
-"""
-    Elias_fano.py : this script compress monotone non-decreasing sequence of n integers using Elias-Fano representation 
-    File name: Elias_fano.py
-    Author: Abdelheq Mokhtari
-    Date created: 4/17/2022
-    Date last modified: 4/21/2022
-    Python Version: 3.9.9
-"""
 
-# read int from a file 
+
+
+
+
 
 file_name = sys.argv[-1]
-with open(file_name, 'rt') as file: #open the file 
-    numbers = file.read().splitlines() #get values from the file and save it in numbers_list(save numbers as string) 
+with open(file_name,'rt') as file :
+    numbers = [int(line) for line in file] #get values from the file and save it in numbers_list(save numbers as string) 
     file.close() #close the file 
 
-numbers = [int(i) for i in numbers] # cast string list to int (save numbers as int)
-m = max(numbers) # find the max value of the list 
-binary_size = math.log2(m) # find the binary encoded size
-binary_size = int (binary_size // 1) + 1 # from float to int and +1 to rounded 
+n = len(numbers)
+m = max(numbers)
+l = int(math.log2(m) - math.log2(n))
+print("l",l)
+mask_lower_size = (2**(l))-1 # for example if we have l = 3  the mask = 7 because bin(7) = 111
+flag = 8
+store = 0
+result = []
+for i in range(n):
+    lower_bits = numbers[i]& mask_lower_size
+    flag -= l
+    if(flag > 0):
 
-# covert numbers in list(numbers) to binary 
-binary_numbers = [] # declare a new empty list 
-for item in numbers:
-    binary_numbers.append(bin(item)[2:].zfill(binary_size)) # create numbers in binary with a format 0xAA..A where A = binary_size 
-n = len(numbers) # calculate how many numbers we have in our list 
-l = int (math.log2(m)-math.log2(n)) # calculate the size of the lower bits we can use (Math.log2(m/n))
-print('l',l) # print the size of the lower bits   
+        lower_bits <<= flag
+        store |= lower_bits
 
-# split the lower bits 
+    else : 
+        saved_lower_bits = lower_bits
+        flag *= (-1)
+        saved_lower_bits &= ((2**flag) - 1)
+        lower_bits >>= flag
+        store |= lower_bits
+        result.append(store)
+        flag = 8 - flag
+        saved_lower_bits <<= flag
+        store = saved_lower_bits
 
-L = [] # declare a new empty list  
-for j in range(n):
-    L.append(binary_numbers[j][binary_size-l:binary_size]) # lower bits are the last l bits of the binary number   
+if(store != 0):
+    result.append(store)
+    store = 0
+    flag = 8 
 
-L =''.join(L) #join all items of the List L together 
-print('L')
-# make L from multiples of 8 
-if(len(L) % 8 != 0):
-    rest_bit = 8 - (len(L)%8)
-    for i in range(rest_bit):
-        L = L + '0' # complete L with 0 till he become multiple of 8
+print("L")
+for i in range(len(result)):
+    format_printing = "{0:b}".format(result[i]).zfill(8)
+    print(format_printing)
 
-for i in range(0, len(L), 8):  
-    print(L[i:i+8]) #print L as shape of bytes 
+L = bytearray(result)
 
-# split Upper Bits         
+del result[:]
+
+u = int(math.log2(m)+1) - l
+
 upper_bits = []
-
-for k in range(n):
-    upper_bits.append(binary_numbers[k][:binary_size-l]) # we calculate the upper bits from the first bits of binary number 
+count = []
+if( u <= 8):
+    for i in range(n):
+        upper_bits.append(numbers[i]>>l)
+    for i in range((2**u)):
+        count.append(upper_bits.count(i))
     
-# create all possible paterns and combination that can 1 and 0 format with a specif length     
-a = 0
-list_of_possiblites = [] # list to save all possible values 
-for i in range(2**(binary_size-l)):
-    list_of_possiblites.append(bin(a)[2:]) # create a list of binary numbers from 0 to 2^(binary_size-l) ['0','1','10',...]
-    a = a + 1 # increament a 
-combinations = [] #list to format the possible values with a fixed size 
-for item in list_of_possiblites:
-    combinations.append(item.zfill(binary_size-l)) # the fixed size (binary_size-l) and that's the size of the upper_bits 
+    for k in count:
+        if (k == 0):
+            #print(store)
+            if(flag == 8):
+                flag -= 1
+            else :
+                store <<= 1
+                flag -= 1
+                if(flag == 0):
+                    result.append(store)
+                    flag = 8
+                    store = 0
+        #while(k > 0):
+        else :
+            if(store == 0):
+                store = 1
+                
+            else :
+                store <<= 1
+                store |= 1
 
-# calculate Upper Bits    
-U = [] # create an empty list 
-for item in combinations:
-    count = upper_bits.count(item) #count how a specific number appears in the upper_bits for example how many times 0011 appears 
-    for j in range(count):
-        U.append('1') #we add 1 the times of the appearns 
-    U.append('0') #to sperate between values 
+            k -= 1
+            flag -= 1
 
-#remove the last 0 of the U because they are not necassery 
-while (U[-1]=='0'):
-    U.pop()  #remove the last item in the list 
+            if(flag == 0):
+                result.append(store)
+                flag = 8
+            #if(store > 128):
+            #    new_list_test.append(store)
+                store = 0
+            while(k>0):
+                store <<= 1
+                store |= 1
+                k -= 1
+                flag -= 1
+                if (flag == 0):
+                    result.append(store)
+                    flag = 8
+                    store = 0
+                
+            #if(store > 128):
+            #    new_list_test.append(store)
+            #    store = 0
+        
+            store <<= 1
+            flag -= 1
+            if(flag == 0):
+                result.append(store)
+                store = 0
+                flag = 8
+else :
+    print("nothing to do")
 
-# make U a one string 
+print("U")
+for i in range(len(result)):
+    format_printing = "{0:b}".format(result[i]).zfill(8)
+    print(format_printing)
 
-U =''.join(U) #join all items of the List L together 
+U = bytearray(result)
 
-# make U from multiples of 8 
-print('U')
-if(len(U) % 8 != 0):
-    rest_bit = 8 - (len(U)%8)
-    for i in range(rest_bit):
-        U = U + '0'
+del result[:]
 
-#print U 
-for i in range(0, len(U), 8):  
-        print(U[i:i+8])#print 8 values and break the line
 
-#convert L and U to Bytes to pass the in update method 
-L = int(L, 2).to_bytes(len(L) // 8, byteorder='big')
-U = int(U, 2).to_bytes(len(U) // 8, byteorder='big')
-
-#hash function and print it 
 m = hashlib.sha256()
 m.update(L)
 m.update(U)
